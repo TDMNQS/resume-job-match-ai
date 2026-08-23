@@ -1,0 +1,21 @@
+# Secrets — never commit
+.env
+.streamlit/secrets.toml
+
+# SQLite database — user data, not for version control
+job_tracker.db
+
+# Python
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+graphify-out/
+
+# Regeneratable brag/hyperframes trailer output
+brag-output/
