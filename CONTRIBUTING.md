@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for looking at Resume Job-Fit AI. It is a personal project, but issues and
+Thanks for looking at Resume Job-Match AI. It is a personal project, but issues and
 small, focused PRs are welcome.
 
 ## Ground rules

@@ -1,7 +1,7 @@
-# Resume Job-Fit AI - Claude Instructions
+# Resume Job-Match AI - Claude Instructions
 
 Streamlit app scoring resume vs job description via Gemini. Live: https://resume-job-fit-ai.streamlit.app
-Repo: https://github.com/syzayd/resume-job-fit-ai
+Repo: https://github.com/TDMNQS/resume-job-match-ai
 
 ## Run (one terminal)
 

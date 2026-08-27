@@ -1,4 +1,4 @@
-"""Streamlit UI for the AI Resume / Job-Fit Tool.
+"""Streamlit UI for the AI Resume / Job-Match Tool.
 
 Run: streamlit run app.py
 """
@@ -26,7 +26,7 @@ from ui_colors import score_color
 
 SAMPLE_DIR = Path(__file__).parent / "sample"
 
-st.set_page_config(page_title="Resume Job-Fit AI", page_icon="🎯", layout="wide")
+st.set_page_config(page_title="Resume Job-Match AI", page_icon="🎯", layout="wide")
 
 
 # --- Helpers -----------------------------------------------------------------
@@ -65,7 +65,7 @@ def analysis_as_text(
     emails: EmailTemplates | None = None,
 ) -> str:
     lines = [
-        "RESUME JOB-FIT ANALYSIS",
+        "RESUME JOB-MATCH ANALYSIS",
         "=" * 40,
         f"Score: {result.score}/100",
         f"Verdict: {result.verdict}",
@@ -136,13 +136,13 @@ def export_docx(
     doc = Document()
 
     # Title
-    title = doc.add_heading("Resume Job-Fit Analysis", 0)
+    title = doc.add_heading("Resume Job-Match Analysis", 0)
     title.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
     # Score
     score_para = doc.add_paragraph()
     score_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    run = score_para.add_run(f"Fit Score: {result.score}/100")
+    run = score_para.add_run(f"Match Score: {result.score}/100")
     run.bold = True
     run.font.size = Pt(18)
     doc.add_paragraph(result.verdict)
@@ -533,7 +533,7 @@ _init()
 
 # --- Layout ------------------------------------------------------------------
 
-st.title("Resume Job-Fit AI")
+st.title("Resume Job-Match AI")
 st.caption(
     "Paste or upload your resume + a job description - get a fit score, keyword gaps, "
     "tailored rewrites, cover letter, interview prep, and a skills roadmap. "
