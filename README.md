@@ -1,4 +1,4 @@
-# Resume Job-Fit AI
+# Resume Job-Match AI
 
 Paste a **job description** and your **resume** (or upload a PDF) → get an instant **fit score**, **salary range estimate**, **keywords you're missing**, **AI-rewritten bullet diff viewer**, a **tailored cover letter** (3 tones), **interview prep**, a **skills gap roadmap**, **LinkedIn optimizer**, **email templates**, and a **standalone resume health check** - all in one click.
 
