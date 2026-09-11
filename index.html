@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Compare your resume against a job description with AI-powered ATS feedback.">
+  <title>Resume Job-Match AI</title>
+  <style>
+    :root { color-scheme: dark; --bg:#07111f; --panel:#101d30; --line:#263956; --text:#f5f8ff; --muted:#a9b8ce; --brand:#69e6bc; --accent:#7ea6ff; --danger:#ff8e9b; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; background:radial-gradient(circle at 15% 0,#163558 0,transparent 35%),var(--bg); color:var(--text); font:16px/1.55 Inter,ui-sans-serif,system-ui,sans-serif; }
+    main { width:min(1120px,calc(100% - 32px)); margin:auto; padding:56px 0 72px; }
+    header { max-width:780px; margin-bottom:30px; }
+    .eyebrow { color:var(--brand); font-size:.76rem; font-weight:800; letter-spacing:.15em; text-transform:uppercase; }
+    h1 { margin:.3rem 0 .5rem; font-size:clamp(2.2rem,6vw,4.2rem); line-height:1.02; letter-spacing:-.045em; }
+    .intro { color:var(--muted); font-size:1.08rem; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+    .card { background:color-mix(in srgb,var(--panel) 92%,transparent); border:1px solid var(--line); border-radius:20px; padding:20px; box-shadow:0 20px 50px #0005; }
+    label { display:block; margin-bottom:9px; font-weight:750; }
+    textarea { width:100%; min-height:310px; resize:vertical; border:1px solid var(--line); border-radius:13px; padding:15px; background:#091524; color:var(--text); font:inherit; outline:none; }
+    textarea:focus { border-color:var(--accent); box-shadow:0 0 0 3px #7ea6ff24; }
+    .actions { display:flex; align-items:center; gap:12px; margin:18px 0 26px; }
+    button { border:0; border-radius:999px; padding:13px 22px; background:var(--brand); color:#062219; font:inherit; font-weight:850; cursor:pointer; }
+    button:disabled { opacity:.55; cursor:wait; }
+    #status { color:var(--muted); }
+    #error { display:none; margin:18px 0; padding:14px 16px; border:1px solid #8d3947; border-radius:12px; background:#3c1720; color:#ffd8de; }
+    #result { display:none; }
+    .score { display:flex; align-items:end; gap:9px; }
+    .score strong { color:var(--brand); font-size:4rem; line-height:1; }
+    .score span { color:var(--muted); padding-bottom:8px; }
+    h2,h3 { letter-spacing:-.02em; }
+    .columns { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+    .tags { display:flex; flex-wrap:wrap; gap:8px; padding:0; list-style:none; }
+    .tags li { padding:6px 10px; border:1px solid var(--line); border-radius:999px; color:var(--muted); }
+    .rewrite { padding:14px 0; border-top:1px solid var(--line); }
+    .rewrite del { color:#d5a4aa; }
+    .rewrite p { color:#c8f6e6; }
+    footer { margin-top:28px; color:var(--muted); font-size:.9rem; }
+    @media (max-width:760px) { .grid,.columns { grid-template-columns:1fr; } textarea { min-height:230px; } main { padding-top:34px; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="eyebrow">AI career toolkit</div>
+    <h1>Make your resume fit the role.</h1>
+    <p class="intro">Compare your experience with a job description and get a fit score, keyword gaps, truthful bullet rewrites, and practical ATS guidance.</p>
+  </header>
+  <form id="match-form">
+    <div class="grid">
+      <div class="card"><label for="resume">Your resume</label><textarea id="resume" maxlength="8000" required placeholder="Paste resume text here..."></textarea></div>
+      <div class="card"><label for="job">Job description</label><textarea id="job" maxlength="8000" required placeholder="Paste the target job description here..."></textarea></div>
+    </div>
+    <div class="actions"><button id="submit" type="submit">Analyze match</button><span id="status">Maximum 8,000 characters per field.</span></div>
+  </form>
+  <div id="error" role="alert"></div>
+  <section id="result" class="card" aria-live="polite">
+    <div class="score"><strong id="score"></strong><span>/100 match</span></div>
+    <h2 id="verdict"></h2><p id="summary"></p><p><b>Estimated salary:</b> <span id="salary"></span></p>
+    <div class="columns">
+      <div><h3>Matched keywords</h3><ul id="matched" class="tags"></ul></div>
+      <div><h3>Missing keywords</h3><ul id="missing" class="tags"></ul></div>
+    </div>
+    <h3>Suggested bullet rewrites</h3><div id="rewrites"></div>
+    <h3>ATS tips</h3><ul id="tips"></ul>
+  </section>
+  <footer>Powered by Google Gemini. Analysis should support—not replace—your judgment.</footer>
+</main>
+<script>
+  const form=document.querySelector('#match-form'),button=document.querySelector('#submit'),status=document.querySelector('#status'),error=document.querySelector('#error'),result=document.querySelector('#result');
+  const text=(id,value)=>document.querySelector(id).textContent=value||'Not provided';
+  const list=(id,items)=>{const el=document.querySelector(id);el.replaceChildren(...(items||[]).map(item=>{const li=document.createElement('li');li.textContent=item;return li;}));};
+  form.addEventListener('submit',async event=>{
+    event.preventDefault(); error.style.display='none'; result.style.display='none'; button.disabled=true; status.textContent='Analyzing with Gemini…';
+    try {
+      const response=await fetch('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({resume:document.querySelector('#resume').value,job:document.querySelector('#job').value})});
+      const data=await response.json(); if(!response.ok) throw new Error(data.detail||'Analysis failed.');
+      text('#score',data.score); text('#verdict',data.verdict); text('#summary',data.summary); text('#salary',data.salary_range);
+      list('#matched',data.matched_keywords); list('#missing',data.missing_keywords); list('#tips',data.ats_tips);
+      const rewrites=document.querySelector('#rewrites'); rewrites.replaceChildren(...(data.bullet_rewrites||[]).map(item=>{const div=document.createElement('div');div.className='rewrite';const old=document.createElement('del');old.textContent=item.original;const improved=document.createElement('p');improved.textContent=item.improved;div.append(old,improved);return div;}));
+      result.style.display='block'; result.scrollIntoView({behavior:'smooth'}); status.textContent='Analysis complete.';
+    } catch(err) { error.textContent=err.message; error.style.display='block'; status.textContent='Please correct the issue and try again.'; }
+    finally { button.disabled=false; }
+  });
+</script>
+</body>
+</html>
