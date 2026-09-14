@@ -1,11 +1,10 @@
 """Vercel-compatible API for the Resume Job-Match analyzer."""
 
 import os
-from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, Field
 
 from analyzer import AnalyzerError, analyze
@@ -25,10 +24,13 @@ class AnalyzeRequest(BaseModel):
     job: str = Field(min_length=1, max_length=8000)
 
 
-@app.get("/", response_class=FileResponse)
-def homepage() -> FileResponse:
-    """Serve the existing Vercel-compatible frontend at the deployment root."""
-    return FileResponse(Path(__file__).resolve().parents[1] / "index.html")
+@app.get("/", response_class=RedirectResponse)
+def homepage() -> RedirectResponse:
+    """Send visitors to the complete Streamlit application."""
+    return RedirectResponse(
+        url="https://resume-job-fit-ai.streamlit.app",
+        status_code=307,
+    )
 
 
 @app.get("/api/health")
